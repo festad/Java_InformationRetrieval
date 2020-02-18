@@ -9,15 +9,18 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.TreeMap;
 
 
 public class Crawler {
 	
-	private static final String DELIMITERS = " -_~`|#$%^&*() {}[],.'/\\\":;!?\t\n";
+	private static final String DELIMITERS = " -_~`|#$%^&*() {}[],.'/\"\\:;!?\t\n\u201D\u201C";
 	private static final String PATH = "animes";
 	
 	public static List<String> tokenize (String tokenizable) {
@@ -28,11 +31,6 @@ public class Crawler {
 			tokens.add(token.toLowerCase());
 		}
 		return tokens;
-	}
-	
-	public static void main (String[] args) {
-		listOfFilesInAPath(PATH).stream()
-		.forEach(filename -> System.out.println(tokenize(readPath(PATH, filename))));
 	}
 	
 	public static String readPath(String path, String filename) {
@@ -52,7 +50,7 @@ public class Crawler {
 		return null;
 	}
 	
-	public static List<String> listOfFilesInAPath(String stringpath) {
+	public static List<String> listOfFilesInAPath (String stringpath) {
 		List<String> names = new LinkedList<String>();
 		Path path = FileSystems.getDefault().getPath(stringpath, "");
 		try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
@@ -68,4 +66,41 @@ public class Crawler {
 		return null;
 	}
 	
+	public static Map<String, Set<String>> indexed_dictionary (String stringpath) {
+		Map<String, Set<String>> indexed_dictionary = new TreeMap<String, Set<String>>();
+		List<String> filenames = listOfFilesInAPath(stringpath);
+		filenames.stream().forEach(filename -> {
+			String filename_content = readPath(stringpath, filename);
+			StringTokenizer tokenizer = new StringTokenizer(filename_content, DELIMITERS);
+			while (tokenizer.hasMoreElements()) {
+				String token = (String) tokenizer.nextElement().toString().toLowerCase();
+				if (indexed_dictionary.containsKey(token))
+					indexed_dictionary.get(token).add(filename);
+				else {
+					indexed_dictionary.put(token, new HashSet<String>());
+					indexed_dictionary.get(token).add(filename);
+				}
+			}
+		});
+		return indexed_dictionary;
+	}
+	
+	public static String printMap (Map<String, Set<String>> indexed_dictionary) {
+		StringBuilder builder = new StringBuilder();
+		indexed_dictionary.keySet()
+		.stream()
+		.forEach(key -> {
+			builder.append("\n" + key + " -> ");
+			indexed_dictionary.get(key)
+			.stream()
+			.forEach(filename -> {
+				builder.append("\n\t" + filename);
+			});
+		});
+		return builder.toString();
+	}
+	
+	public static void main (String[] args) {
+		System.out.println(printMap(indexed_dictionary(PATH)));
+	}
 }
