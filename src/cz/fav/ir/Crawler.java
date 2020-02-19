@@ -22,8 +22,11 @@ import java.util.concurrent.ConcurrentSkipListMap;
 
 public class Crawler {
 	
-	private static final String DELIMITERS = " -_~`|#$%^&*() {}[],.'/\"\\:;!?\t\n\u201D\u201C \u2018 \u2019 "
-			+ "\u02BB \u02BC \u02BD \u02BE \u02BF \u2013 \u2014 \u2015";
+	private static final String DELIMITERS = " -_~`|#$%^&*() {}[],.'/\"\\:;!?\t\n"
+			+ "\u201D\u201C "
+			+ "\u2018 \u2019 "
+			+ "\u02BB \u02BC \u02BD \u02BE \u02BF "
+			+ "\u2013 \u2014 \u2015";
 	private static final String PATH = "animes";
 	
 	public static List<String> tokenize (String tokenizable) {
