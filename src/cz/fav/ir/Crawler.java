@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 
 public class Crawler {
@@ -67,20 +68,22 @@ public class Crawler {
 	}
 	
 	public static Map<String, Set<String>> indexed_dictionary (String stringpath) {
-		Map<String, Set<String>> indexed_dictionary = new TreeMap<String, Set<String>>();
+		Map<String, Set<String>> indexed_dictionary = new ConcurrentSkipListMap<String, Set<String>>();
 		List<String> filenames = listOfFilesInAPath(stringpath);
 		filenames.stream().forEach(filename -> {
-			String filename_content = readPath(stringpath, filename);
-			StringTokenizer tokenizer = new StringTokenizer(filename_content, DELIMITERS);
-			while (tokenizer.hasMoreElements()) {
-				String token = (String) tokenizer.nextElement().toString().toLowerCase();
-				if (indexed_dictionary.containsKey(token))
-					indexed_dictionary.get(token).add(filename);
-				else {
-					indexed_dictionary.put(token, new HashSet<String>());
-					indexed_dictionary.get(token).add(filename);
+			new Thread(() -> {
+				String filename_content = readPath(stringpath, filename);
+				StringTokenizer tokenizer = new StringTokenizer(filename_content, DELIMITERS);
+				while (tokenizer.hasMoreElements()) {
+					String token = (String) tokenizer.nextElement().toString().toLowerCase();
+					if (indexed_dictionary.containsKey(token))
+						indexed_dictionary.get(token).add(filename);
+					else {
+						indexed_dictionary.put(token, new HashSet<String>());
+						indexed_dictionary.get(token).add(filename);
+					}
 				}
-			}
+			}).start();
 		});
 		return indexed_dictionary;
 	}
