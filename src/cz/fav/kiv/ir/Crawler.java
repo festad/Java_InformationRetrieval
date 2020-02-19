@@ -1,4 +1,4 @@
-package cz.fav.ir;
+package cz.fav.kiv.ir;
 
 import java.io.BufferedReader;
 import java.io.IOException;
