@@ -22,7 +22,8 @@ import java.util.concurrent.ConcurrentSkipListMap;
 
 public class Crawler {
 	
-	private static final String DELIMITERS = " -_~`|#$%^&*() {}[],.'/\"\\:;!?\t\n\u201D\u201C";
+	private static final String DELIMITERS = " -_~`|#$%^&*() {}[],.'/\"\\:;!?\t\n\u201D\u201C \u2018 \u2019 "
+			+ "\u02BB \u02BC \u02BD \u02BE \u02BF \u2013 \u2014 \u2015";
 	private static final String PATH = "animes";
 	
 	public static List<String> tokenize (String tokenizable) {
@@ -87,7 +88,7 @@ public class Crawler {
 		return indexed_dictionary;
 	}
 	
-	public static String printMap (Map<String, Set<String>> indexed_dictionary) {
+	public static String printIndexedDictionary (Map<String, Set<String>> indexed_dictionary) {
 		StringBuilder builder = new StringBuilder();
 		indexed_dictionary.keySet()
 		.stream()
@@ -119,6 +120,16 @@ public class Crawler {
 		return word_frequency;
 	}
 	
+	public static String printWordFrequency (Map<String,Integer> word_frequency) {
+		StringBuilder builder = new StringBuilder();
+		word_frequency.keySet()
+		.stream()
+		.forEach(word -> {
+			builder.append("\n" + word + " -> " + word_frequency.get(word));
+		});
+		return builder.toString();
+	}
+	
 	public static Map<Integer, Set<String>> documentFrequency (Map<String, Set<String>> indexed_dictionary) {
 		Map<Integer, Set<String>> document_frequency = new TreeMap<Integer, Set<String>>();
 		indexed_dictionary.keySet()
@@ -139,10 +150,27 @@ public class Crawler {
 		});
 		return document_frequency;
 	}
+	
+	public static String printDocumentFrequency (Map<Integer, Set<String>> document_frequency) {
+		StringBuilder builder = new StringBuilder();
+		document_frequency.keySet()
+		.stream()
+		.forEach(number -> {
+			builder.append("\n" + number + " -> ");
+			document_frequency.get(number)
+			.stream()
+			.forEach(word -> {
+				builder.append("\n\t" + word);
+			});
+		});
+		return builder.toString();
+	}
 
 	public static void main (String[] args) {
-		System.out.println(printMap(indexedDictionary(PATH)));
-		System.out.println(wordFrequency(PATH));
-		System.out.println(documentFrequency(indexedDictionary(PATH)));
+		System.out.println(printIndexedDictionary(indexedDictionary(PATH)));
+		System.out.println("-------------------------------------------");
+		System.out.println(printWordFrequency(wordFrequency(PATH)));
+		System.out.println("-------------------------------------------");
+		System.out.println(printDocumentFrequency(documentFrequency(indexedDictionary(PATH))));
 	}
 }
